@@ -40,7 +40,7 @@ test('random set and get', (t) => {
   t.pass()
 })
 
-test.skip('count', (t) => {
+test('count', (t) => {
   const b = new Bitarray()
 
   for (const [start, length] of [[0, 2], [5, 1], [7, 2], [13, 1], [16, 3], [20, 5]]) {

@@ -7,7 +7,7 @@ const BITS_PER_SEGMENT = 2097152
 const BYTES_PER_SEGMENT = BITS_PER_SEGMENT / 8
 const PAGES_PER_SEGMENT = BITS_PER_SEGMENT / BITS_PER_PAGE
 
-module.exports = class Bitarray {
+module.exports = exports = class Bitarray {
   constructor () {
     this._segments = new Map()
     this._pages = new Map()
@@ -17,8 +17,14 @@ module.exports = class Bitarray {
   }
 
   page (i) {
+    if (typeof i !== 'number') {
+      throw new TypeError(`\`i\` must be a number, received type ${typeof i} (${i})`)
+    }
+
     const page = this._pages.get(i)
+
     if (page === undefined) return null
+
     return page.bitfield
   }
 
@@ -47,7 +53,15 @@ module.exports = class Bitarray {
     return page.get(i)
   }
 
-  set (bit, value) {
+  set (bit, value = true) {
+    if (typeof bit !== 'number') {
+      throw new TypeError(`\`bit\` must be a number, received type ${typeof bit} (${bit})`)
+    }
+
+    if (typeof value !== 'boolean') {
+      throw new TypeError(`\`value\` must be a boolean, received type ${typeof value} (${value})`)
+    }
+
     const i = bit & (BITS_PER_PAGE - 1)
     const j = (bit - i) / BITS_PER_PAGE
 
@@ -70,7 +84,23 @@ module.exports = class Bitarray {
     return page.set(i, value)
   }
 
+  unset (bit) {
+    return this.set(bit, false)
+  }
+
   fill (value, start = 0, end = -1) {
+    if (typeof value !== 'boolean') {
+      throw new TypeError(`\`value\` must be a boolean, received type ${typeof value} (${value})`)
+    }
+
+    if (typeof start !== 'number') {
+      throw new TypeError(`\`start\` must be a number, received type ${typeof start} (${start})`)
+    }
+
+    if (typeof end !== 'number') {
+      throw new TypeError(`\`end\` must be a number, received type ${typeof end} (${end})`)
+    }
+
     const len = this._lastSegment + 1
 
     const n = len * BITS_PER_SEGMENT
@@ -101,6 +131,14 @@ module.exports = class Bitarray {
   }
 
   findFirst (value, pos = 0) {
+    if (typeof value !== 'boolean') {
+      throw new TypeError(`\`value\` must be a boolean, received type ${typeof value} (${value})`)
+    }
+
+    if (typeof pos !== 'number') {
+      throw new TypeError(`\`pos\` must be a number, received type ${typeof pos} (${pos})`)
+    }
+
     const len = this._lastSegment + 1
 
     const n = len * BITS_PER_SEGMENT
@@ -129,7 +167,23 @@ module.exports = class Bitarray {
     return value ? -1 : Math.max(pos, n)
   }
 
+  firstSet (pos) {
+    return this.findFirst(true, pos)
+  }
+
+  firstUnset (pos) {
+    return this.findFirst(false, pos)
+  }
+
   findLast (value, pos = -1) {
+    if (typeof value !== 'boolean') {
+      throw new TypeError(`\`value\` must be a boolean, received type ${typeof value} (${value})`)
+    }
+
+    if (typeof pos !== 'number') {
+      throw new TypeError(`\`pos\` must be a number, received type ${typeof pos} (${pos})`)
+    }
+
     const len = this._lastSegment + 1
 
     const n = len * BITS_PER_SEGMENT
@@ -157,6 +211,69 @@ module.exports = class Bitarray {
 
     return -1
   }
+
+  lastSet (pos) {
+    return this.findLast(true, pos)
+  }
+
+  lastUnset (pos) {
+    return this.findLast(false, pos)
+  }
+
+  count (value, start = 0, end = -1) {
+    if (typeof value !== 'boolean') {
+      throw new TypeError(`\`value\` must be a boolean, received type ${typeof value} (${value})`)
+    }
+
+    if (typeof start !== 'number') {
+      throw new TypeError(`\`start\` must be a number, received type ${typeof start} (${start})`)
+    }
+
+    if (typeof end !== 'number') {
+      throw new TypeError(`\`end\` must be a number, received type ${typeof end} (${end})`)
+    }
+
+    const len = this._lastSegment + 1
+
+    const n = len * BITS_PER_SEGMENT
+
+    if (start < 0) start += n
+    if (end < 0) end += n
+    if (start < 0 || start >= end) return 0
+
+    let remaining = end - start
+
+    if (start >= n) return value ? 0 : remaining
+
+    let i = start & (BITS_PER_SEGMENT - 1)
+    let j = (start - i) / BITS_PER_SEGMENT
+
+    let c = 0
+
+    while (remaining > 0) {
+      const end = Math.min(i + remaining, BITS_PER_SEGMENT)
+      const range = end - i
+
+      const segment = this._segments.get(j)
+
+      if (segment) c += segment.count(value, i, end)
+      else if (!value) c += range
+
+      i = 0
+      j++
+      remaining -= range
+    }
+
+    return c
+  }
+
+  countSet (start, end) {
+    return this.count(true, start, end)
+  }
+
+  countUnset (start, end) {
+    return this.count(false, start, end)
+  }
 }
 
 class BitarraySegment {
@@ -180,8 +297,8 @@ class BitarraySegment {
   fill (value, start, end) {
     let remaining = end - start
 
-    let j = start & (BITS_PER_PAGE - 1)
-    let i = (start - j) / BITS_PER_PAGE
+    let i = start & (BITS_PER_PAGE - 1)
+    let j = (start - i) / BITS_PER_PAGE
 
     while (remaining > 0) {
       const end = Math.min(i + remaining, BITS_PER_PAGE)
@@ -245,6 +362,25 @@ class BitarraySegment {
     }
 
     return -1
+  }
+
+  count (value, start, end) {
+    let remaining = end - start
+    let c = 0
+
+    while (remaining > 0) {
+      const l = this.findFirst(value, start)
+      if (l === -1 || l >= end) return c
+
+      const h = this.findFirst(!value, l + 1)
+      if (h === -1 || h >= end) return c + end - l
+
+      c += h - l
+      remaining -= h - start
+      start = h
+    }
+
+    return c
   }
 }
 
@@ -315,4 +451,8 @@ class BitarrayPage {
   findLast (value, pos) {
     return quickbit.findLast(this.bitfield, value, pos)
   }
+}
+
+exports.constants = {
+  BYTES_PER_PAGE
 }
