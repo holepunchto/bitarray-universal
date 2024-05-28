@@ -194,3 +194,15 @@ test('find last, ones around segment boundary', (t) => {
   t.is(b.findLast(false, 2097152), 2097150)
   t.is(b.findLast(false, 2097153), 2097153)
 })
+
+test('insert', (t) => {
+  const b = new Bitarray()
+
+  b.insert(Buffer.from([0b1111]), 16)
+
+  const expected = new Uint32Array(Bitarray.constants.BYTES_PER_PAGE / 4)
+
+  expected[0] = 0b1111_00000000_00000000
+
+  t.alike(b.page(0), expected)
+})

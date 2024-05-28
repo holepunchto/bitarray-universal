@@ -38,6 +38,70 @@ module.exports = exports = class Bitarray {
     }
   }
 
+  insert (bitfield, start = 0) {
+    if (typeof start !== 'number') {
+      throw new TypeError(`\`start\` must be a number, received type ${typeof start} (${start})`)
+    }
+
+    if (start % 8 !== 0) {
+      throw new RangeError('`start` must be a multiple of 8')
+    }
+
+    let remaining = bitfield.byteLength * 8
+
+    let i = start & (BITS_PER_SEGMENT - 1)
+    let j = (start - i) / BITS_PER_SEGMENT
+
+    while (remaining > 0) {
+      const end = Math.min(i + remaining, BITS_PER_SEGMENT)
+      const range = end - i
+
+      let segment = this._segments.get(j)
+
+      if (segment === undefined) segment = new BitarraySegment(this, j)
+
+      segment.insert(bitfield.subarray(0, range / 8), i)
+
+      bitfield = bitfield.subarray(range / 8)
+
+      i = 0
+      j++
+      remaining -= range
+    }
+  }
+
+  clear (bitfield, start = 0) {
+    if (typeof start !== 'number') {
+      throw new TypeError(`\`start\` must be a number, received type ${typeof start} (${start})`)
+    }
+
+    if (start % 8 !== 0) {
+      throw new RangeError('`start` must be a multiple of 8')
+    }
+
+    let remaining = bitfield.byteLength * 8
+
+    let i = start & (BITS_PER_SEGMENT - 1)
+    let j = (start - i) / BITS_PER_SEGMENT
+
+    while (remaining > 0) {
+      const end = Math.min(i + remaining, BITS_PER_SEGMENT)
+      const range = end - i
+
+      let segment = this._segments.get(j)
+
+      if (segment === undefined) segment = new BitarraySegment(this, j)
+
+      segment.clear(bitfield.subarray(0, range / 8), i)
+
+      bitfield = bitfield.subarray(range / 8)
+
+      i = 0
+      j++
+      remaining -= range
+    }
+  }
+
   get (bit) {
     if (typeof bit !== 'number') {
       throw new TypeError(`\`bit\` must be a number, received type ${typeof bit} (${bit})`)
@@ -294,6 +358,58 @@ class BitarraySegment {
     return this.index * BYTES_PER_SEGMENT
   }
 
+  insert (bitfield, start) {
+    let remaining = bitfield.byteLength * 8
+
+    let i = start & (BITS_PER_PAGE - 1)
+    let j = (start - i) / BITS_PER_PAGE
+
+    while (remaining > 0) {
+      const end = Math.min(i + remaining, BITS_PER_PAGE)
+      const range = end - i
+
+      let page = this.pages[j]
+
+      if (page === undefined) page = new BitarrayPage(this.bitarray, this, this.index * PAGES_PER_SEGMENT + j)
+
+      page.insert(bitfield.subarray(0, range / 8), i)
+
+      bitfield = bitfield.subarray(range / 8)
+
+      i = 0
+      j++
+      remaining -= range
+    }
+
+    this.tree = quickbit.Index.from(this.tree.chunks, BYTES_PER_SEGMENT)
+  }
+
+  clear (bitfield, start) {
+    let remaining = bitfield.byteLength * 8
+
+    let i = start & (BITS_PER_PAGE - 1)
+    let j = (start - i) / BITS_PER_PAGE
+
+    while (remaining > 0) {
+      const end = Math.min(i + remaining, BITS_PER_PAGE)
+      const range = end - i
+
+      let page = this.pages[j]
+
+      if (page === undefined) page = new BitarrayPage(this.bitarray, this, this.index * PAGES_PER_SEGMENT + j)
+
+      page.clear(bitfield.subarray(0, range / 8), i)
+
+      bitfield = bitfield.subarray(range / 8)
+
+      i = 0
+      j++
+      remaining -= range
+    }
+
+    this.tree = quickbit.Index.from(this.tree.chunks, BYTES_PER_SEGMENT)
+  }
+
   fill (value, start, end) {
     let remaining = end - start
 
@@ -415,6 +531,16 @@ class BitarrayPage {
 
   get offset () {
     return this.index * BYTES_PER_PAGE - this.segment.offset
+  }
+
+  insert (bitfield, start) {
+    const view = new Uint8Array(this.bitfield.buffer, this.bitfield.byteOffset, this.bitfield.byteLength)
+
+    view.set(bitfield, start / 8)
+  }
+
+  clear (bitfield, start) {
+    quickbit.clear(this.bitfield, { field: bitfield, offset: start })
   }
 
   get (bit) {
