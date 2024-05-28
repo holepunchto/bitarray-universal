@@ -22,6 +22,16 @@ module.exports = class Bitarray {
     return page.bitfield
   }
 
+  * pages () {
+    const n = this._lastPage + 1
+
+    for (let i = 0; i < n; i++) {
+      const page = this.page(i)
+
+      if (page) yield [i, page]
+    }
+  }
+
   get (bit) {
     if (typeof bit !== 'number') {
       throw new TypeError(`\`bit\` must be a number, received type ${typeof bit} (${bit})`)
