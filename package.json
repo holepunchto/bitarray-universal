@@ -1,0 +1,42 @@
+{
+  "name": "bitarray-universal",
+  "version": "1.0.0",
+  "description": "Universal wrapper for libbitarray with a JavaScript fallback",
+  "exports": {
+    ".": "./index.js",
+    "./package": "./package.json",
+    "./fallback": "./fallback.js"
+  },
+  "files": [
+    "index.js",
+    "fallback.js"
+  ],
+  "browser": {
+    "./index.js": "./fallback.js"
+  },
+  "addon": true,
+  "scripts": {
+    "test": "npm run lint && npm run test:bare && npm run test:node",
+    "test:bare": "bare test.js",
+    "test:node": "node test.js",
+    "lint": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/holepunchto/bitarray-universal.git"
+  },
+  "author": "Holepunch",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/holepunchto/bitarray-universal/issues"
+  },
+  "homepage": "https://github.com/holepunchto/bitarray-universal#readme",
+  "dependencies": {
+    "bitarray-native": "^1.0.0",
+    "quickbit-universal": "^2.2.0"
+  },
+  "devDependencies": {
+    "brittle": "^3.1.0",
+    "standard": "^17.0.0"
+  }
+}
