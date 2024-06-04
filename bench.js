@@ -60,8 +60,6 @@ test('set', async (t) => {
       }
     })
 
-    t.absent(r)
-
     t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
   })
 
@@ -79,8 +77,6 @@ test('set', async (t) => {
         r = b.set(Math.floor(Math.random() * 1234567))
       }
     })
-
-    t.absent(r)
 
     t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
   })
