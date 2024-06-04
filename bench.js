@@ -85,3 +85,47 @@ test('set', async (t) => {
     t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
   })
 })
+
+test('findFirst', async (t) => {
+  await t.test('native', async (t) => {
+    const Bitarray = require('.')
+
+    const b = new Bitarray()
+    b.set(1234567)
+
+    const ops = 1e7
+
+    let r
+
+    const elapsed = await t.execution(() => {
+      for (let i = 0; i < ops; i++) {
+        r = b.findFirst(true)
+      }
+    })
+
+    t.is(r, 1234567)
+
+    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+  })
+
+  await t.test('javascript', async (t) => {
+    const Bitarray = require('./fallback')
+
+    const b = new Bitarray()
+    b.set(1234567)
+
+    const ops = 1e7
+
+    let r
+
+    const elapsed = await t.execution(() => {
+      for (let i = 0; i < ops; i++) {
+        r = b.findFirst(true)
+      }
+    })
+
+    t.is(r, 1234567)
+
+    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+  })
+})
