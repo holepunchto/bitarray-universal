@@ -56,7 +56,7 @@ test('set', async (t) => {
 
     const elapsed = await t.execution(() => {
       for (let i = 0; i < ops; i++) {
-        r = b.set(1234567)
+        r = b.set(Math.floor(Math.random() * 1234567))
       }
     })
 
@@ -76,7 +76,7 @@ test('set', async (t) => {
 
     const elapsed = await t.execution(() => {
       for (let i = 0; i < ops; i++) {
-        r = b.set(1234567)
+        r = b.set(Math.floor(Math.random() * 1234567))
       }
     })
 
