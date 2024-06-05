@@ -86,6 +86,40 @@ test('set', async (t) => {
   })
 })
 
+test('fill', async (t) => {
+  await t.test('native', async (t) => {
+    const Bitarray = require('.')
+
+    const b = new Bitarray()
+
+    const ops = 1e6
+
+    const elapsed = await t.execution(() => {
+      for (let i = 0; i < ops; i++) {
+        b.fill(true, 0, 1234567)
+      }
+    })
+
+    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+  })
+
+  await t.test('javascript', async (t) => {
+    const Bitarray = require('./fallback')
+
+    const b = new Bitarray()
+
+    const ops = 1e3
+
+    const elapsed = await t.execution(() => {
+      for (let i = 0; i < ops; i++) {
+        b.fill(true, 0, 1234567)
+      }
+    })
+
+    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+  })
+})
+
 test('findFirst', async (t) => {
   await t.test('native', async (t) => {
     const Bitarray = require('.')
