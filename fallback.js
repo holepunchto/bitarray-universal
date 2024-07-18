@@ -148,8 +148,30 @@ module.exports = exports = class Bitarray {
     return page.set(i, value)
   }
 
+  setBatch (bits, value = true) {
+    if (!Array.isArray(bits)) {
+      throw new TypeError(`\`bits\` must be an array, received type ${typeof bits} (${bits})`)
+    }
+
+    if (typeof value !== 'boolean') {
+      throw new TypeError(`\`value\` must be a boolean, received type ${typeof value} (${value})`)
+    }
+
+    let changed = false
+
+    for (const bit of bits) {
+      changed = this.set(bit, value) || changed
+    }
+
+    return changed
+  }
+
   unset (bit) {
     return this.set(bit, false)
+  }
+
+  unsetBatch (bits) {
+    return this.setBatch(bits, false)
   }
 
   fill (value, start = 0, end = -1) {

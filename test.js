@@ -40,6 +40,15 @@ test('random set and get', (t) => {
   t.pass()
 })
 
+test('setBatch', (t) => {
+  const b = new Bitarray()
+
+  t.is(b.setBatch([1, 4, 8], true), true)
+  t.is(b.get(1), true)
+  t.is(b.get(4), true)
+  t.is(b.get(8), true)
+})
+
 test('count', (t) => {
   const b = new Bitarray()
 
