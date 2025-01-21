@@ -16,30 +16,6 @@ module.exports = exports = class Bitarray {
     this._lastPage = -1
   }
 
-  page(i) {
-    if (typeof i !== 'number') {
-      throw new TypeError(
-        `\`i\` must be a number, received type ${typeof i} (${i})`
-      )
-    }
-
-    const page = this._pages.get(i)
-
-    if (page === undefined) return null
-
-    return page.bitfield
-  }
-
-  *pages() {
-    const n = this._lastPage + 1
-
-    for (let i = 0; i < n; i++) {
-      const page = this.page(i)
-
-      if (page) yield [i, page]
-    }
-  }
-
   insert(bitfield, start = 0) {
     if (typeof start !== 'number') {
       throw new TypeError(
