@@ -19,7 +19,7 @@ test('get', async (t) => {
 
     t.ok(r)
 
-    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+    t.comment(Math.round((ops / elapsed) * 1e3) + ' ops/s')
   })
 
   await t.test('javascript', async (t) => {
@@ -40,7 +40,7 @@ test('get', async (t) => {
 
     t.ok(r)
 
-    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+    t.comment(Math.round((ops / elapsed) * 1e3) + ' ops/s')
   })
 })
 
@@ -62,7 +62,7 @@ test('set', async (t) => {
 
     t.comment(r)
 
-    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+    t.comment(Math.round((ops / elapsed) * 1e3) + ' ops/s')
   })
 
   await t.test('javascript', async (t) => {
@@ -82,7 +82,7 @@ test('set', async (t) => {
 
     t.comment(r)
 
-    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+    t.comment(Math.round((ops / elapsed) * 1e3) + ' ops/s')
   })
 })
 
@@ -100,7 +100,7 @@ test('fill', async (t) => {
       }
     })
 
-    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+    t.comment(Math.round((ops / elapsed) * 1e3) + ' ops/s')
   })
 
   await t.test('javascript', async (t) => {
@@ -116,7 +116,7 @@ test('fill', async (t) => {
       }
     })
 
-    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+    t.comment(Math.round((ops / elapsed) * 1e3) + ' ops/s')
   })
 })
 
@@ -139,7 +139,7 @@ test('findFirst', async (t) => {
 
     t.is(r, 1234567)
 
-    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+    t.comment(Math.round((ops / elapsed) * 1e3) + ' ops/s')
   })
 
   await t.test('javascript', async (t) => {
@@ -160,6 +160,6 @@ test('findFirst', async (t) => {
 
     t.is(r, 1234567)
 
-    t.comment(Math.round(ops / elapsed * 1e3) + ' ops/s')
+    t.comment(Math.round((ops / elapsed) * 1e3) + ' ops/s')
   })
 })

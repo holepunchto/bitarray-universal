@@ -52,7 +52,14 @@ test('setBatch', (t) => {
 test('count', (t) => {
   const b = new Bitarray()
 
-  for (const [start, length] of [[0, 2], [5, 1], [7, 2], [13, 1], [16, 3], [20, 5]]) {
+  for (const [start, length] of [
+    [0, 2],
+    [5, 1],
+    [7, 2],
+    [13, 1],
+    [16, 3],
+    [20, 5]
+  ]) {
     b.fill(true, start, start + length)
   }
 
