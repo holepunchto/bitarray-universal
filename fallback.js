@@ -370,8 +370,9 @@ class BitarraySegment {
 
       let page = this.pages[j]
 
-      if (page === undefined)
+      if (page === undefined) {
         page = new BitarrayPage(this.bitarray, this, this.index * PAGES_PER_SEGMENT + j)
+      }
 
       page.insert(bitfield.subarray(0, range / 8), i)
 
@@ -397,8 +398,9 @@ class BitarraySegment {
 
       let page = this.pages[j]
 
-      if (page === undefined)
+      if (page === undefined) {
         page = new BitarrayPage(this.bitarray, this, this.index * PAGES_PER_SEGMENT + j)
+      }
 
       page.clear(bitfield.subarray(0, range / 8), i)
 
@@ -424,8 +426,9 @@ class BitarraySegment {
 
       let page = this.pages[j]
 
-      if (page === undefined && value)
+      if (page === undefined && value) {
         page = new BitarrayPage(this.bitarray, this, this.index * PAGES_PER_SEGMENT + j)
+      }
 
       if (page) page.fill(value, i, end)
 
